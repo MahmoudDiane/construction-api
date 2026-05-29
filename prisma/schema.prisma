@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  location    String
+  startDate   DateTime
+  endDate     DateTime?
+  status      ProjectStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  dailySheets DailySheet[]
+}
+
+model Worker {
+  id        String   @id @default(uuid())
+  name      String
+  role      String
+  phone     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  allocations WorkerAllocation[]
+}
+
+model Equipment {
+  id        String   @id @default(uuid())
+  name      String
+  type      String
+  plate     String?  @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  allocations EquipmentAllocation[]
+}
+
+model Material {
+  id        String   @id @default(uuid())
+  name      String
+  unit      String
+  stock     Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  allocations MaterialAllocation[]
+}
+
+model DailySheet {
+  id        String      @id @default(uuid())
+  date      DateTime
+  status    SheetStatus @default(DRAFT)
+  notes     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+
+  workers    WorkerAllocation[]
+  equipment  EquipmentAllocation[]
+  materials  MaterialAllocation[]
+}
+
+model WorkerAllocation {
+  id           String @id @default(uuid())
+  hoursWorked  Float
+
+  dailySheetId String
+  dailySheet   DailySheet @relation(fields: [dailySheetId], references: [id])
+
+  workerId String
+  worker   Worker @relation(fields: [workerId], references: [id])
+}
+
+model EquipmentAllocation {
+  id        String @id @default(uuid())
+  hoursUsed Float
+
+  dailySheetId String
+  dailySheet   DailySheet @relation(fields: [dailySheetId], references: [id])
+
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+}
+
+model MaterialAllocation {
+  id       String @id @default(uuid())
+  quantity Float
+
+  dailySheetId String
+  dailySheet   DailySheet @relation(fields: [dailySheetId], references: [id])
+
+  materialId String
+  material   Material @relation(fields: [materialId], references: [id])
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+  ON_HOLD
+}
+
+enum SheetStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+}
