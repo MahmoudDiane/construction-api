@@ -6,7 +6,14 @@
     "outDir": "dist",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["jest"]
   },
-  "exclude": ["node_modules", "dist", "prisma.config.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "prisma.config.ts",
+    "tests",
+    "jest.config.js"
+  ]
 }
